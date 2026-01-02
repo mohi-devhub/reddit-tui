@@ -1,4 +1,4 @@
-module github.com/harryfrzz/reddit-tui
+module reddit-tui
 
 go 1.25.1
 
