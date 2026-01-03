@@ -1,9 +1,9 @@
 package models
 
 type Post struct {
-	Title     string
-	Subreddit string
-	Author    string
-	Upvotes   int
-	Comments  int
+	Title     string `json:"title"`
+	Subreddit string `json:"subreddit"`
+	Author    string `json:"author"`
+	Upvotes   int    `json:"upvotes"`
+	Comments  int    `json:"comments"`
 }

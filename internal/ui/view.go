@@ -79,17 +79,29 @@ func (m Model) View() string {
 	subredditStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("33"))
 	metaStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("241"))
 
+	sidebarItemStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("252")).
+		PaddingLeft(1)
+	sidebarItemActiveStyle := lipgloss.NewStyle().
+		Foreground(lipgloss.Color("205")).
+		Bold(true).
+		PaddingLeft(1)
 	sidebarContent := navPaneHeading.Render("NAVIGATION") + "\n\n"
 	for i, item := range m.SidebarItems {
 		cursor := "  "
+		style := sidebarItemStyle
 		if m.SidebarCursor == i {
 			cursor = cursorStyle.Render("> ")
+			style = sidebarItemActiveStyle
 		}
-		sidebarContent += cursor + item + "\n"
+		sidebarContent += cursor + style.Render(item) + "\n"
 	}
 
 	postsContent := postsPaneHeading.Render("POSTS") + "\n\n"
 	for i, post := range m.Posts {
+		if i < m.PostsScroll {
+			continue
+		}
 		cursor := "  "
 		if m.PostsCursor == i {
 			cursor = cursorStyle.Render("> ")
@@ -99,29 +111,49 @@ func (m Model) View() string {
 		postsContent += "   " + metaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", post.Upvotes, post.Comments)) + "\n\n"
 	}
 
-	var previewContent string
+	var previewLines []string
 	if m.PostsCursor >= 0 && m.PostsCursor < len(m.Posts) {
 		selectedPost := m.Posts[m.PostsCursor]
-		previewContent = previewPaneHeading.Render("PREVIEW") + "\n\n"
-		previewContent += postTitleStyle.Render(selectedPost.Title) + "\n\n"
-		previewContent += subredditStyle.Render(selectedPost.Subreddit) + " by u/" + selectedPost.Author + "\n"
-		previewContent += metaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", selectedPost.Upvotes, selectedPost.Comments)) + "\n\n"
-		previewContent += strings.Repeat("-", 20) + "\n\n"
-		previewContent += "Lorem ipsum dolor sit amet,\n"
-		previewContent += "consectetur adipiscing elit.\n\n"
-		previewContent += "Sed do eiusmod tempor incididunt\n"
-		previewContent += "ut labore et dolore magna aliqua."
+		previewLines = append(previewLines, previewPaneHeading.Render("PREVIEW"))
+		previewLines = append(previewLines, "")
+		previewLines = append(previewLines, postTitleStyle.Render(selectedPost.Title))
+		previewLines = append(previewLines, "")
+		previewLines = append(previewLines, subredditStyle.Render(selectedPost.Subreddit)+" by u/"+selectedPost.Author)
+		previewLines = append(previewLines, metaStyle.Render(fmt.Sprintf("%d upvotes | %d comments", selectedPost.Upvotes, selectedPost.Comments)))
+		previewLines = append(previewLines, "")
+		previewLines = append(previewLines, strings.Repeat("-", 20))
+		previewLines = append(previewLines, "")
+		previewLines = append(previewLines, "Lorem ipsum dolor sit amet,")
+		previewLines = append(previewLines, "consectetur adipiscing elit.")
+		previewLines = append(previewLines, "")
+		previewLines = append(previewLines, "Sed do eiusmod tempor incididunt")
+		previewLines = append(previewLines, "ut labore et dolore magna aliqua.")
+		previewLines = append(previewLines, "")
+		previewLines = append(previewLines, "Ut enim ad minim veniam, quis")
+		previewLines = append(previewLines, "nostrud exercitation ullamco.")
+		previewLines = append(previewLines, "")
+		previewLines = append(previewLines, "Duis aute irure dolor in")
+		previewLines = append(previewLines, "reprehenderit in voluptate velit.")
 	} else {
-		previewContent = "PREVIEW\n\nSelect a post to view"
+		previewLines = []string{"PREVIEW", "", "Select a post to view"}
 	}
+
+	scrollOffset := m.PreviewScroll
+	if scrollOffset > len(previewLines)-1 {
+		scrollOffset = len(previewLines) - 1
+	}
+	if scrollOffset < 0 {
+		scrollOffset = 0
+	}
+	previewContent := strings.Join(previewLines[scrollOffset:], "\n")
 
 	sidebar := renderPane(sidebarContent, sidebarWidth, paneHeight, "63", m.ActivePane == "sidebar")
 	posts := renderPane(postsContent, postsWidth, paneHeight, "63", m.ActivePane == "posts")
-	preview := renderPane(previewContent, previewWidth, paneHeight, "63", false)
+	preview := renderPane(previewContent, previewWidth, paneHeight, "63", m.ActivePane == "preview")
 
 	mainContent := lipgloss.JoinHorizontal(lipgloss.Top, sidebar, posts, preview)
 
-	controlText := metaStyle.Render("Tab: switch panes | ↑↓/j/k: navigate | q: quit")
+	controlText := metaStyle.Render("Tab: switch panes | ↑↓/j/k: navigate/scroll | q: quit")
 	controlPane := renderPane(controlText, m.Width, controlPaneHeight, "63", false)
 
 	return lipgloss.JoinVertical(lipgloss.Left, mainContent, controlPane)
