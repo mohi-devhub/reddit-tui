@@ -47,7 +47,7 @@ Contributions are welcome! If you have a feature request or want to report a bug
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=harryfrzz/reddit-tui&type=date&legend=top-left)](https://www.star-history.com/#harryfrzz/reddit-tui&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/svg?repos=harryfrzz/re-tui&type=date&legend=top-left)](https://www.star-history.com/#harryfrzz/re-tui&type=date&legend=top-left)
 ---
 
 ## License
