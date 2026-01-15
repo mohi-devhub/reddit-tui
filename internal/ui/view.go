@@ -97,7 +97,7 @@ func (m Model) renderHelpModal() string {
 	// Documentation
 	content.WriteString(headerStyle.Render("📚 Resources"))
 	content.WriteString("\n")
-	content.WriteString(linkStyle.Render("https://github.com/harryfrzz/re-tuii"))
+	content.WriteString(linkStyle.Render("https://github.com/harryfrzz/re-tui"))
 	content.WriteString("\n")
 	content.WriteString(descStyle.Render("Report issues, contribute, or star the repo!"))
 	content.WriteString("\n\n")
